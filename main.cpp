@@ -23,15 +23,15 @@ using namespace KeyAuth;
 HANDLE hMainThread;
 CONTEXT c{};
 std::string name = "imp"; // application name. right above the blurred text aka the secret on the licenses tab among other tabs
-std::string ownerid = "ss3JcGuVnA"; // ownerid, found in account settings. click your profile picture on top right of dashboard and then account settings.
-std::string secret = "f8ea20f06bac7ff17c73df0dec9d5bd5ab1cbadcddd8ace7a03f213e0643318d"; // app secret, the blurred text on licenses tab and other tabs
+std::string ownerid = ""; // ownerid, found in account settings. click your profile picture on top right of dashboard and then account settings.
+std::string secret = ""; // app secret, the blurred text on licenses tab and other tabs
 std::string version = "3.5"; // leave alone unless you've changed version on website
 std::string url = skCrypt("https://keyauth.win/api/1.2/").decrypt(); // change if you're self-hosting
 void MainThread() {
 	using namespace OW;
 	/*while (!SDK->Initialize() || !SDK->GetGlobalKey())
 	{
-		std::cout << "µÈ´ý¿ªÆôÊØÍûÏÈ·æ..\n";
+		std::cout << "ç­‰å¾…å¼€å¯å®ˆæœ›å…ˆé”‹..\n";
 		Sleep(2000);
 	}*/
 	std::cout << skCrypt("Launch in MainMenu then Go to Practice Range...\n");
@@ -93,11 +93,11 @@ DWORD WINAPI MainProject(LPVOID lpParam)
 	if (OW::Config::loginornot) {
 		std::string consoleTitle = (std::string)skCrypt("Loader - Built at:  ") + compilation_date + " " + compilation_time;
 		SetConsoleTitleA(consoleTitle.c_str());
-		std::cout << skCrypt("\n\nÁ¬½Ó·þÎñÆ÷..");
+		std::cout << skCrypt("\n\nè¿žæŽ¥æœåŠ¡å™¨..");
 		KeyAuthApp.init();
 		if (!KeyAuthApp.data.success)
 		{
-			std::cout << skCrypt("\n ×´Ì¬: ") << KeyAuthApp.data.message;
+			std::cout << skCrypt("\n çŠ¶æ€: ") << KeyAuthApp.data.message;
 			Sleep(1500);
 			exit(0);
 		}
@@ -114,11 +114,11 @@ DWORD WINAPI MainProject(LPVOID lpParam)
 		//std::cout << skCrypt("\n Number of users: ") << KeyAuthApp.data.numUsers;
 		//std::cout << skCrypt("\n Number of online users: ") << KeyAuthApp.data.numOnlineUsers;
 		//std::cout << skCrypt("\n Number of keys: ") << KeyAuthApp.data.numKeys;
-		std::cout << skCrypt("\n µ±Ç°°æ±¾: ") << KeyAuthApp.data.version;
+		std::cout << skCrypt("\n å½“å‰ç‰ˆæœ¬: ") << KeyAuthApp.data.version;
 		//std::cout << skCrypt("\n Customer panel link: ") << KeyAuthApp.data.customerPanelLink;
 		//std::cout << skCrypt("\n Checking session validation status (remove this if causing your loader to be slow)");
 		KeyAuthApp.check();
-		std::cout << skCrypt("\n ×´Ì¬: ") << KeyAuthApp.data.message;
+		std::cout << skCrypt("\n çŠ¶æ€: ") << KeyAuthApp.data.message;
 
 		if (std::filesystem::exists(".\\test.json")) //change test.txt to the path of your file :smile:
 		{
@@ -133,7 +133,7 @@ DWORD WINAPI MainProject(LPVOID lpParam)
 					Sleep(1500);
 					exit(0);
 				}
-				std::cout << skCrypt("\n³É¹¦×Ô¶¯µÇÈë£¬Èô¸ü»»¿¨ÃÜÇë×ÔÐÐÉ¾³ýtest.json");
+				std::cout << skCrypt("\næˆåŠŸè‡ªåŠ¨ç™»å…¥ï¼Œè‹¥æ›´æ¢å¡å¯†è¯·è‡ªè¡Œåˆ é™¤test.json");
 			}
 			else
 			{
@@ -147,56 +147,56 @@ DWORD WINAPI MainProject(LPVOID lpParam)
 					Sleep(1500);
 					exit(0);
 				}
-				std::cout << skCrypt("\n³É¹¦×Ô¶¯µÇÈë");
+				std::cout << skCrypt("\næˆåŠŸè‡ªåŠ¨ç™»å…¥");
 			}
-			KeyAuthApp.log("½ûÖ¹¶¥ºÅ");
+			KeyAuthApp.log("ç¦æ­¢é¡¶å·");
 		}
 		else
 		{
 			std::string username;
 			std::string password;
 			std::string key;
-			std::cout << skCrypt("\n ÊäÈëÄúµÄ¿¨ºÅ: ");
+			std::cout << skCrypt("\n è¾“å…¥æ‚¨çš„å¡å·: ");
 			std::cin >> key;
 			KeyAuthApp.license(key);
 			if (!KeyAuthApp.data.success)
 			{
-				std::cout << skCrypt("\n ×´Ì¬: ") << KeyAuthApp.data.message;
+				std::cout << skCrypt("\n çŠ¶æ€: ") << KeyAuthApp.data.message;
 				Sleep(1500);
 				exit(0);
 			}
 			if (username.empty() || password.empty())
 			{
 				WriteToJson(".\\test.json", "license", key, false, "", "");
-				std::cout << skCrypt("³É¹¦´´½¨×Ô¶¯µÇÂ¼ÎÄ¼þ£¬Èô¸ü»»¿¨ÃÜÇë×ÔÐÐÉ¾³ý");
+				std::cout << skCrypt("æˆåŠŸåˆ›å»ºè‡ªåŠ¨ç™»å½•æ–‡ä»¶ï¼Œè‹¥æ›´æ¢å¡å¯†è¯·è‡ªè¡Œåˆ é™¤");
 			}
 			else
 			{
 				WriteToJson(".\\test.json", "username", username, true, "password", password);
-				std::cout << skCrypt("³É¹¦´´½¨×Ô¶¯µÇÂ¼ÎÄ¼þ£¬Èô¸ü»»¿¨ÃÜÇë×ÔÐÐÉ¾³ý");
+				std::cout << skCrypt("æˆåŠŸåˆ›å»ºè‡ªåŠ¨ç™»å½•æ–‡ä»¶ï¼Œè‹¥æ›´æ¢å¡å¯†è¯·è‡ªè¡Œåˆ é™¤");
 			}
 
 
 		}
 
-		std::cout << skCrypt("\nÓÃ»§Êý¾Ý:");
+		std::cout << skCrypt("\nç”¨æˆ·æ•°æ®:");
 		//std::cout << skCrypt("\n Username: ") << KeyAuthApp.data.username;
-		std::cout << skCrypt("\n IPµØÖ·: ") << KeyAuthApp.data.ip;
+		std::cout << skCrypt("\n IPåœ°å€: ") << KeyAuthApp.data.ip;
 		std::cout << skCrypt("\n HWID: ") << KeyAuthApp.data.hwid;
-		std::cout << skCrypt("\n ¼¤»îÈÕÆÚ: ") << tm_to_readable_time(timet_to_tm(string_to_timet(KeyAuthApp.data.createdate)));
-		std::cout << skCrypt("\n ÉÏÒ»´ÎµÇÂ¼: ") << tm_to_readable_time(timet_to_tm(string_to_timet(KeyAuthApp.data.lastlogin)));
-		std::cout << skCrypt("\n ¿¨ÃÜÐÅÏ¢:\n ");
+		std::cout << skCrypt("\n æ¿€æ´»æ—¥æœŸ: ") << tm_to_readable_time(timet_to_tm(string_to_timet(KeyAuthApp.data.createdate)));
+		std::cout << skCrypt("\n ä¸Šä¸€æ¬¡ç™»å½•: ") << tm_to_readable_time(timet_to_tm(string_to_timet(KeyAuthApp.data.lastlogin)));
+		std::cout << skCrypt("\n å¡å¯†ä¿¡æ¯:\n ");
 
 		for (int i = 0; i < KeyAuthApp.data.subscriptions.size(); i++) { // Prompto#7895 was here
 			auto sub = KeyAuthApp.data.subscriptions.at(i);
 			//std::cout << skCrypt("\n name: ") << sub.name;
-			std::cout << skCrypt("¿¨ºÅ¹ýÆÚÈÕÆÚ: ") << tm_to_readable_time(timet_to_tm(string_to_timet(sub.expiry)));
+			std::cout << skCrypt("å¡å·è¿‡æœŸæ—¥æœŸ: ") << tm_to_readable_time(timet_to_tm(string_to_timet(sub.expiry)));
 			expiretime = string_to_timet(sub.expiry);
 		}
 
-		std::cout << skCrypt("\n ¼ì²é¼¤»î×´Ì¬..");
+		std::cout << skCrypt("\n æ£€æŸ¥æ¿€æ´»çŠ¶æ€..");
 		KeyAuthApp.check();
-		std::cout << skCrypt("\n ×´Ì¬: ") << KeyAuthApp.data.message;
+		std::cout << skCrypt("\n çŠ¶æ€: ") << KeyAuthApp.data.message;
 
 		_beginthread((_beginthread_proc_type)OW::looprpmthread, 0, 0);
 		MainThread();
