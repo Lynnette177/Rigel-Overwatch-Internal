@@ -88,7 +88,7 @@ namespace OW {
 				if (!entity.address) continue;
 				if (!LinkParent) continue;
 
-				uint64_t Ptr = SDK->RPM<uint64_t>(ComponentParent + 0x30)  & 0xFFFFFFFFFFFFFFC0;
+				uint64_t Ptr = SDK->RPM<uint64_t>(ComponentParent + 0x30) & 0xFFFFFFFFFFFFFFC0;
 				if (Ptr < 0xFFFFFFFFFFFFFFEF) {
 					uint64_t EntityID = SDK->RPM<uint64_t>(Ptr + 0x10);
 					if (EntityID == 0x400000000000060 || EntityID == 0x40000000000480A || EntityID == 0x40000000000005F || EntityID == 0x400000000002533) {
@@ -115,7 +115,7 @@ namespace OW {
 				entity.VisBase = DecryptComponent(LinkParent, TYPE_P_VISIBILITY);
 				entity.AngleBase = DecryptComponent(LinkParent, TYPE_PLAYERCONTROLLER);
 				entity.EnemyAngleBase = DecryptComponent(ComponentParent, TYPE_ANGLE);
-				
+
 				health_compo_t health_compo{};
 				velocity_compo_t velo_compo{};
 				hero_compo_t hero_compo{};
@@ -186,7 +186,7 @@ namespace OW {
 				}
 				else {
 					if (entity.MaxHealth == 225) {
-						XMFLOAT3 temppos = SDK->RPM<XMFLOAT3>(entity.VelocityBase + 0x380+0x50);
+						XMFLOAT3 temppos = SDK->RPM<XMFLOAT3>(entity.VelocityBase + 0x380 + 0x50);
 						entity.head_pos = Vector3(temppos.x, temppos.y + 1, temppos.z);
 						entity.HeroID = 0x16dd;
 						entity.neck_pos = entity.head_pos;
@@ -230,7 +230,7 @@ namespace OW {
 				}
 				if (entity.TeamBase) {
 					entity.Team = (entity.GetTeam() == eTeam::TEAM_DEATHMATCH || entity.GetTeam() != local_entity.GetTeam()) ? true : false;
-					
+
 				}
 				if (entity.VisBase) {
 					vis_compo = SDK->RPM<vis_compo_t>(entity.VisBase);
@@ -242,7 +242,7 @@ namespace OW {
 					entity.skill1act = IsSkillActive(entity.SkillBase, 0, 0x28E3);
 					entity.skill2act = IsSkillActive(entity.SkillBase, 0, 0x28E9);
 					entity.ultimate = readult(entity.SkillBase, 0, 0x1e32);
-					if (entity.HeroID == eHero::HERO_SOMBRA && entity.Team && !Config::Rage && !Config::fov360 && !Config::silent&&!Config::fakesilent) {
+					if (entity.HeroID == eHero::HERO_SOMBRA && entity.Team && !Config::Rage && !Config::fov360 && !Config::silent && !Config::fakesilent) {
 						entity.Vis = (entity.Vis && !IsSkillActivate1(entity.SkillBase, 0, 0x7C5));
 					}
 					//entity.skillcd1 = readskillcd(entity.SkillBase, 0, 0x189c);
@@ -323,7 +323,7 @@ namespace OW {
 
 						}
 					}
-					else if (Config::teamoutline&&!entity.Team) {
+					else if (Config::teamoutline && !entity.Team) {
 						if (!entity.Vis) SetBorderLine(0x2, entity.OutlineBase);
 						else SetBorderLine(0x1, entity.OutlineBase);
 						Config::Allycolor = convertToHex(Config::allyargb);
@@ -338,7 +338,7 @@ namespace OW {
 				if (entity.AngleBase)
 				{
 					float dist = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z).DistTo(entity.head_pos);
-					if (dist <= 1&& GetHeroEngNames(entity.HeroID, entity.LinkBase) != skCrypt(u8"Unknown").decrypt()) {
+					if (dist <= 1 && GetHeroEngNames(entity.HeroID, entity.LinkBase) != skCrypt(u8"Unknown").decrypt()) {
 						entity.skillcd1 = readskillcd(entity.SkillBase, 0, 0x189c);
 						//std::cout << entity.skillcd1 << std::endl;
 						//entity.skillready= cdready(entity.SkillBase, 0, 0x189c);
@@ -415,71 +415,21 @@ namespace OW {
 		}
 	}
 
-	inline void PlayerInfo() {
-		if (entities.size() > 0) {
-			//mutex.lock();
-			//for (const c_entity &entity : entities)//传常量引用
-			for (c_entity entity : entities) {
-				if (entity.Alive && entity.Team && local_entity.PlayerHealth > 0) {
-					//if (entity.Alive && local_entity.PlayerHealth > 0) {
-					Vector3 Vec3 = entity.head_pos; // 일단 원래대로 돌렸음
-					//if (entity.HeroID == 0x16dd || entity.HeroID == 0x16ee) Vec3 = entity.rootpos;
-					float dist = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z).DistTo(Vec3);
-					Vector2 Vec2_A{}, Vec2_B{};
-					Vector2 Vec2_C{}, Vec2_D{};
-					Vector2 Vec2_E{}, Vec2_F{};
-					//if (!viewMatrix.WorldToScreen(Vector3(Vec3.X, Vec3.Y + 1.f, Vec3.Z), &Vec2_A, Vector2(WX, WY)))
-					//	continue;
-
-					//if (!viewMatrix.WorldToScreen(Vector3(Vec3.X, Vec3.Y - 0.8f, Vec3.Z), &Vec2_B, Vector2(WX, WY)))
-					//	continue;
-
-					if (!viewMatrix.WorldToScreen(Vector3(Vec3.X, Vec3.Y - 1.5f, Vec3.Z), &Vec2_A, Vector2(WX, WY)))
-						continue;
-					if (!viewMatrix.WorldToScreen(Vector3(Vec3.X, Vec3.Y + 1.f, Vec3.Z), &Vec2_B, Vector2(WX, WY)))
-						continue;
-					float height = abs(Vec2_A.Y - Vec2_B.Y);
-					float width = height * 0.85;
-					float Size = abs(Vec2_A.Y - Vec2_B.Y) / 2.0f;
-					float Size2 = abs(Vec2_A.Y - Vec2_B.Y) / 20.0f;
-					float Height2 = abs(Vec2_A.Y - Vec2_B.Y);
-					int num7 = (float)(1500 / (int)Height2);
-					float xpos = (Vec2_A.X + Vec2_B.X) / 2.f;
-					float ypos = Vec2_A.Y + Size / 5;
-					Size /= 5;
-					if (Size < 12) Size = 12;
-					if (Size > 16) Size = 16;
-					// 여기 감
-					//Render::DrawInfo(ImVec2(Vec2_A.X, Vec2_A.Y), ImGui::GetColorU32(ImVec4(1, 0.2, 0.8, 0.7)), 30, (skCrypt("[").decrypt() + std::to_string((int)dist) + skCrypt("m] ").decrypt() + skCrypt(u8"[名称 : ").decrypt() + GetHeroNames(entity.HeroID, entity.LinkBase).c_str() + skCrypt(u8"]").decrypt()), dist, entity.PlayerHealth, entity.PlayerHealthMax);
-					if (Config::healthbar) Render::DrawHealthBar(Vector2(Vec2_A.X + width / 2, Vec2_A.Y), -Height2, entity.PlayerHealth, entity.PlayerHealthMax);
-					//Render::DrawString(Vector2(Vec2_A.X , Vec2_A.Y), Color(255,255,255,255), (u8"血量：" + std::to_string(entity.PlayerHealth)).c_str());
-					if (Config::drawhealth)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[血量：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"]").decrypt()).c_str(), Size);
-					if (Config::ult)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y + Height2 / 5), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[终极技能：").decrypt() + std::to_string((int)entity.ultimate) + skCrypt(u8"]").decrypt()).c_str(), Size);
-					if (Config::dist)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[距离：").decrypt() + std::to_string((int)dist) + skCrypt(u8"]").decrypt()).c_str(), Size);
-					if (Config::name)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y + Height2 / 5), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[名称：").decrypt() + GetHeroNames(entity.HeroID, entity.LinkBase) + skCrypt(u8"]").decrypt()).c_str(), Size);
-					//std::string str = std::to_string(entity.HeroID);
-					//Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y + Height2 / 5), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), str.c_str(), Size);
-				}
-			}
-			//mutex.unlock();
-		}
-	}
-
 	inline void skillinfo() {
 		if (entities.size() > 0) {
 			//mutex.lock();
 			int i = 10;
 			//for (const c_entity &entity : entities)//传常量引用
 			for (c_entity entity : entities) {
-				std::string heroname = GetHeroNames(entity.HeroID, entity.LinkBase).c_str();
-				if (entity.Team && heroname != u8"小机靶" && heroname != u8"未知" && entity.HeroID != 0x16dd && entity.HeroID != 0x16ee && entity.HeroID != 0x16bb) {
+				std::string heroname = GetHeroEngNames(entity.HeroID, entity.LinkBase).c_str();
+				if (entity.Team && heroname != u8"Bot" && heroname != u8"Unknown" && entity.HeroID != 0x16dd && entity.HeroID != 0x16ee && entity.HeroID != 0x16bb) {
 					float xpos = WX;
 					float ypos = WY + i;
 					std::string skillstring;
 					float ult = entity.ultimate;
 					//float cd1 = entity.skillcd1;
 					//float cd2 = entity.skillcd2;
-					skillstring = skCrypt(u8"敌方：").decrypt() + heroname + skCrypt(u8" 终极技能：").decrypt() + std::to_string((int)ult);
+					skillstring = skCrypt(u8"Enemy:").decrypt() + heroname + skCrypt(u8" Ult:").decrypt() + std::to_string((int)ult);
 					//if (entity.skillcd1 != 0 && entity.skillcd2 != 0)
 						//skillstring = skCrypt(u8"敌方：").decrypt()+ heroname +skCrypt(u8" 终极技能：").decrypt() + std::to_string((int)ult) + skCrypt(u8"% 技能1 cd：").decrypt() + std::to_string((int)cd1) + skCrypt(u8" 技能2 cd：").decrypt() + std::to_string((int)cd2);
 					//else if (entity.skillcd1 == 0 && entity.skillcd2 != 0)
@@ -493,22 +443,22 @@ namespace OW {
 				}
 				else if (entity.Team && (entity.HeroID == 0x16dd || entity.HeroID == 0x16ee || entity.HeroID == 0x16bb)) {
 					std::string skillstring;
-					skillstring = skCrypt(u8"敌方实体：").decrypt() + heroname + skCrypt(u8" 血量：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"/").decrypt() + std::to_string((int)entity.MaxHealth);
+					skillstring = skCrypt(u8"Enemy Entity:").decrypt() + heroname + skCrypt(u8" HP：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"/").decrypt() + std::to_string((int)entity.MaxHealth);
 					Render::DrawSKILL(ImVec2(70, 30 + i), skillstring);
 					i += 20;
 				}
 			}
 			i += 60;
 			for (c_entity entity : entities) {//传常量引用
-				std::string heroname = GetHeroNames(entity.HeroID, entity.LinkBase).c_str();
-				if (!entity.Team && heroname != u8"小机靶" && heroname != u8"未知" && entity.HeroID != 0x16dd && entity.HeroID != 0x16ee && entity.HeroID != 0x16bb) {
+				std::string heroname = GetHeroEngNames(entity.HeroID, entity.LinkBase).c_str();
+				if (!entity.Team && heroname != u8"Bot" && heroname != u8"Unknown" && entity.HeroID != 0x16dd && entity.HeroID != 0x16ee && entity.HeroID != 0x16bb) {
 					float xpos = WX;
 					float ypos = WY + i;
 					std::string skillstring;
 					float ult = entity.ultimate;
 					//float cd1 = entity.skillcd1;
 					//float cd2 = entity.skillcd2;
-					skillstring = skCrypt(u8"己方：").decrypt() + heroname + skCrypt(u8" 终极技能：").decrypt() + std::to_string((int)ult);
+					skillstring = skCrypt(u8"Ally:").decrypt() + heroname + skCrypt(u8" Ult:").decrypt() + std::to_string((int)ult);
 					//if (entity.skillcd1 != 0 && entity.skillcd2 != 0)
 					//	skillstring = skCrypt(u8"己方：").decrypt()+ heroname + skCrypt(u8" 终极技能：").decrypt() + std::to_string((int)ult) + skCrypt(u8"% 技能1 cd：").decrypt() + std::to_string((int)cd1) + skCrypt(u8" 技能2 cd：").decrypt() + std::to_string((int)cd2);
 					//else if (entity.skillcd1 == 0 && entity.skillcd2 != 0)
@@ -522,7 +472,7 @@ namespace OW {
 				}
 				else if (!entity.Team && (entity.HeroID == 0x16dd || entity.HeroID == 0x16ee || entity.HeroID == 0x16bb)) {
 					std::string skillstring;
-					skillstring = skCrypt(u8"己方实体：").decrypt() + heroname + skCrypt(u8" 血量：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"/").decrypt() + std::to_string((int)entity.MaxHealth);
+					skillstring = skCrypt(u8"Ally entity:").decrypt() + heroname + skCrypt(u8" HP:").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"/").decrypt() + std::to_string((int)entity.MaxHealth);
 					Render::DrawSKILL(ImVec2(70, 30 + i), skillstring);
 					i += 20;
 				}
@@ -785,7 +735,7 @@ namespace OW {
 					continue;
 				float dist = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z).DistTo(Vector3(hppack.POS.x, hppack.POS.y, hppack.POS.z));
 				Render::DrawStrokeText(ImVec2(stringresult.X - 5.f, stringresult.Y - 8.f), ImGui::GetColorU32(ImVec4(1, 0, 0.2f, 1)), (skCrypt(u8"HP PACK").decrypt()), 16.f);
-				Render::DrawStrokeText(ImVec2(stringresult.X - 5.f, stringresult.Y + 8.f), ImGui::GetColorU32(ImVec4(1, 0, 0.2f, 1)), (skCrypt(u8"[距离：").decrypt() + std::to_string((int)dist) + skCrypt(u8"]").decrypt()).c_str(), 16.f);
+				Render::DrawStrokeText(ImVec2(stringresult.X - 5.f, stringresult.Y + 8.f), ImGui::GetColorU32(ImVec4(1, 0, 0.2f, 1)), (skCrypt(u8"[DIST：").decrypt() + std::to_string((int)dist) + skCrypt(u8"]").decrypt()).c_str(), 16.f);
 				Render::DrawLine(resultvec1, resultvec2, Color(102, 153, 255, 100), 2.f);
 				Render::DrawLine(resultvec1, resultvec3, Color(102, 153, 255, 100), 2.f);
 				Render::DrawLine(resultvec2, resultvec4, Color(102, 153, 255, 100), 2.f);
@@ -800,7 +750,7 @@ namespace OW {
 				Render::DrawLine(resultvec4, resultvec8, Color(102, 153, 255, 100), 2.f);
 			}
 		}
-		if ((Config::draw_info || Config::draw_skel || Config::skillinfo || Config::drawbox3d || Config::draw_edge || Config::drawline|| Config::radar|| Config::eyeray|| Config::crosscircle) && entities.size() > 0) {
+		if ((Config::draw_info || Config::draw_skel || Config::skillinfo || Config::drawbox3d || Config::draw_edge || Config::drawline || Config::radar || Config::eyeray || Config::crosscircle) && entities.size() > 0) {
 			int drawradar = 0;
 			for (c_entity entity : entities)
 			{
@@ -826,8 +776,8 @@ namespace OW {
 						Render::DrawLine(Vector2(WX - 200, WY - 400), Vector2(WX - 200 - linex, WY - 400 - liney), Color(153, 102, 255, 255), 2.f);
 						Render::DrawLine(Vector2(WX - 200, WY - 400), Vector2(WX - 200 + linex, WY - 400 - liney), Color(153, 102, 255, 255), 2.f);
 
-						Render::DrawLine(Vector2(WX - 200, WY - 400), Vector2(WX - 200, WY - 400 -200), Color(255, 255, 0, 120), 1.f);
-						
+						Render::DrawLine(Vector2(WX - 200, WY - 400), Vector2(WX - 200, WY - 400 - 200), Color(255, 255, 0, 120), 1.f);
+
 						drawradar = 1;
 					}
 					if (entity == local_entity) {
@@ -857,7 +807,7 @@ namespace OW {
 							characterPoint.x = (characterPoint.x / therad) * 200;
 							characterPoint.z = (characterPoint.z / therad) * 200;
 						}
-						ImVec2 pointPosition(WX-200-characterPoint.x, WY-400-characterPoint.z);
+						ImVec2 pointPosition(WX - 200 - characterPoint.x, WY - 400 - characterPoint.z);
 						// 定义点的半径
 						float pointRadius = 3.4f;
 
@@ -866,7 +816,7 @@ namespace OW {
 						Vector3 whereiseye;
 						Vector3 whereisarrow1, whereisarrow2, whereisarrow3, whereisarrow4;
 						entity.GetEyeRayPoint(whereiseye, whereisarrow1, whereisarrow2, whereisarrow3, whereisarrow4);
-						DirectX::XMFLOAT3 eyePoint = {( whereiseye.X- entity.head_pos.X)*4 + whereiseye.X - viewMatrix_xor.get_location().x,whereiseye.Y - viewMatrix_xor.get_location().y,(whereiseye.Z - entity.head_pos.Z) * 4+ whereiseye.Z - viewMatrix_xor.get_location().z }; // 世界坐标点或向量
+						DirectX::XMFLOAT3 eyePoint = { (whereiseye.X - entity.head_pos.X) * 4 + whereiseye.X - viewMatrix_xor.get_location().x,whereiseye.Y - viewMatrix_xor.get_location().y,(whereiseye.Z - entity.head_pos.Z) * 4 + whereiseye.Z - viewMatrix_xor.get_location().z }; // 世界坐标点或向量
 						eyePoint.x *= 2.5;
 						eyePoint.y *= 2.5;
 						eyePoint.z *= 2.5;
@@ -893,7 +843,7 @@ namespace OW {
 
 						// 使用绘图列表的AddCircle函数来添加一个点
 						if (!entity.Team) {
-							Draw->AddCircleFilled(pointPosition, pointRadius, IM_COL32(102,255,255,255));
+							Draw->AddCircleFilled(pointPosition, pointRadius, IM_COL32(102, 255, 255, 255));
 						}
 						else {
 							Draw->AddCircleFilled(pointPosition, pointRadius, pointColor);
@@ -929,18 +879,14 @@ namespace OW {
 						Size /= 2;
 						if (Size < 16) Size = 16;
 						if (Size > 20) Size = 20;
-						if(Config::drawbattletag) Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_B.Y - Size), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[ID：").decrypt() + entity.battletag + skCrypt(u8"]").decrypt()).c_str(), Size);
+						if (Config::drawbattletag) Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_B.Y - Size), ImGui::GetColorU32(ImVec4(0, 0.9, 1, 1)), (skCrypt(u8"[ID：").decrypt() + entity.battletag + skCrypt(u8"]").decrypt()).c_str(), Size);
 						//if (Config::healthbar) Render::DrawHealthBar(Vector2(Vec2_A.X - width / 2, Vec2_A.Y), -Height2, entity.PlayerHealth, entity.PlayerHealthMax);
 						if (Config::healthbar) Render::DrawSeerLikeHealth(Vec2_B.X, Vec2_B.Y - 30.f, (int)(1.25f * entity.ultimate), 125, (int)entity.PlayerHealth, (int)entity.PlayerHealthMax);
 
-						if (Config::drawhealth)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[血量：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"]").decrypt()).c_str(), Size);
-						if (Config::ult)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y + Size), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[终极技能：").decrypt() + std::to_string((int)entity.ultimate) + skCrypt(u8"]").decrypt()).c_str(), Size);
-						if (Config::dist)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[距离：").decrypt() + std::to_string((int)dist) + skCrypt(u8"]").decrypt()).c_str(), Size);
-						if (Config::name)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y + Size), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[名称：").decrypt() + GetHeroNames(entity.HeroID, entity.LinkBase) + skCrypt(u8"]").decrypt()).c_str(), Size);
-						/*std::stringstream stream;
-						stream << std::hex << entity.HeroID;
-						Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y + Size), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[").decrypt() + stream.str() + skCrypt(u8"]").decrypt()).c_str(), Size);
-*/
+						if (Config::drawhealth)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[HP：").decrypt() + std::to_string((int)entity.PlayerHealth) + skCrypt(u8"]").decrypt()).c_str(), Size);
+						if (Config::ult)Render::DrawStrokeText(ImVec2(Vec2_A.X - width / 6, Vec2_A.Y + Size), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[ULT：").decrypt() + std::to_string((int)entity.ultimate) + skCrypt(u8"]").decrypt()).c_str(), Size);
+						if (Config::dist)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[DIST：").decrypt() + std::to_string((int)dist) + skCrypt(u8"]").decrypt()).c_str(), Size);
+						if (Config::name)Render::DrawStrokeText(ImVec2(Vec2_B.X - width / 6, Vec2_B.Y + Size), ImGui::GetColorU32(ImVec4(0.9, 0.9, 1, 1)), (skCrypt(u8"[NAME：").decrypt() + GetHeroEngNames(entity.HeroID, entity.LinkBase) + skCrypt(u8"]").decrypt()).c_str(), Size);
 					}
 				}
 				if (Config::draw_skel) {
@@ -1080,7 +1026,7 @@ namespace OW {
 						Vector3 Vec3 = entity.head_pos;
 						Vector3 veca{}, vecb{}, vecc{}, vecd{}, vece{}, vecf{}, vecg{}, vech{};
 						Vector2 Vec2_A{}, Vec2_B{}, Vec2_C{}, Vec2_D{}, Vec2_E{}, Vec2_F{}, Vec2_G{}, Vec2_H{};
-						entity.Get3DBoxPos(veca, vecb, vecc, vecd, vece, vecf, vecg, vech); 
+						entity.Get3DBoxPos(veca, vecb, vecc, vecd, vece, vecf, vecg, vech);
 						if (!viewMatrix.WorldToScreen(veca, &Vec2_A, Vector2(WX, WY)))
 							continue;
 
@@ -1147,7 +1093,7 @@ namespace OW {
 						Vector3 Vec3 = entity.head_pos;
 						Vector3 eyepoint{}, whereisarrow1{}, whereisarrow2{}, whereisarrow3{}, whereisarrow4{};
 						Vector2 Vec2_A{}, Vec2_B{}, Vec2_C{}, Vec2_D{}, Vec2_E{}, Vec2_F{};
-						entity.GetEyeRayPoint(eyepoint,whereisarrow1, whereisarrow2, whereisarrow3, whereisarrow4);
+						entity.GetEyeRayPoint(eyepoint, whereisarrow1, whereisarrow2, whereisarrow3, whereisarrow4);
 						if (!viewMatrix.WorldToScreen(Vec3, &Vec2_A, Vector2(WX, WY)))
 							continue;
 
@@ -1163,7 +1109,7 @@ namespace OW {
 							continue;
 
 						if (entity.Vis) {
-							Render::DrawLine(Vec2_A, Vec2_B, Color(255, 0, 0,255), 3.f);
+							Render::DrawLine(Vec2_A, Vec2_B, Color(255, 0, 0, 255), 3.f);
 							Render::DrawLine(Vec2_B, Vec2_C, Color(255, 51, 102, 255), 3.f);
 							Render::DrawLine(Vec2_B, Vec2_D, Color(255, 51, 102, 255), 3.f);
 							Render::DrawLine(Vec2_B, Vec2_E, Color(255, 51, 102, 255), 3.f);
@@ -1194,7 +1140,7 @@ namespace OW {
 					}
 					Config::crss++;
 					if (Config::crss == 14) Config::crss = 0;
-					if (entity.Alive && entity.Vis && local_entity.address&& entity.Team)
+					if (entity.Alive && entity.Vis && local_entity.address && entity.Team)
 						Draw->AddCircle(ImVec2(Vec2_A.X + Config::locx, Vec2_A.Y + Config::locy), Config::therad, IM_COL32(255, 255, 255, 255), 3000, 3);
 				}
 			}
@@ -1210,7 +1156,6 @@ namespace OW {
 				Draw->AddCircle(CrossHair, Config::Fov2, ImGui::GetColorU32(Config::fovcol2), 3000);
 		}
 	}
-	HWND hwnd;
 	inline void aimbot_thread()
 	{
 		__try {
@@ -1255,7 +1200,7 @@ namespace OW {
 						{
 							//mutex.lock();
 							auto vec = GetVector3(Config::Prediction ? true : false);
-							if (vec != Vector3(0, 0, 0) && !(entities[Config::Targetenemyi].skill2act && entities[Config::Targetenemyi].HeroID == eHero::HERO_GENJI) && ((!entities[Config::Targetenemyi].imort && !entities[Config::Targetenemyi].barrprot)||Config::switch_team)) {
+							if (vec != Vector3(0, 0, 0) && !(entities[Config::Targetenemyi].skill2act && entities[Config::Targetenemyi].HeroID == eHero::HERO_GENJI) && ((!entities[Config::Targetenemyi].imort && !entities[Config::Targetenemyi].barrprot) || Config::switch_team)) {
 								auto local_angle = SDK->RPM<Vector3>(SDK->g_player_controller + 0x12A0);
 								auto calc_target = CalcAngle(XMFLOAT3(vec.X, vec.Y, vec.Z), viewMatrix_xor.get_location());
 								auto vec_calc_target = Vector3(calc_target.x, calc_target.y, calc_target.z);
@@ -1263,11 +1208,11 @@ namespace OW {
 								auto local_loc = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z);
 								if (Config::aiaim) {
 									int x;
-									if(rand() % 10>5)
-										Target.X +=(double)(rand()) / RAND_MAX / 500;
+									if (rand() % 10 > 5)
+										Target.X += (double)(rand()) / RAND_MAX / 500;
 									else Target.X -= (double)(rand()) / RAND_MAX / 500;
-									if(rand() % 10>5)
-										Target.Y +=(double)(rand()) / RAND_MAX/500;
+									if (rand() % 10 > 5)
+										Target.Y += (double)(rand()) / RAND_MAX / 500;
 									else Target.Y -= (double)(rand()) / RAND_MAX / 500;
 									if (rand() % 10 > 5)
 										Target.Z += (double)(rand()) / RAND_MAX / 500;
@@ -1456,6 +1401,7 @@ namespace OW {
 										Config::shooted = true;
 										if (Config::dontshot) Config::shotcount++;
 										break;
+										
 									}
 									//自动空枪
 									else if (Config::dontshot && Config::shotcount >= Config::shotmanydont) {
@@ -1534,6 +1480,10 @@ namespace OW {
 								auto vec_calc_target = Vector3(calc_target.x, calc_target.y, calc_target.z);
 								auto Target = SmoothAccelerate(local_angle, vec_calc_target, Config::Flick_smooth / 10.f, Config::accvalue);
 								auto local_loc = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z);
+								if (dodelay && !Config::doingdelay) {//超时开枪 dodelay
+									hitbotdelaytime = GetTickCount();
+									dodelay = 0;
+								}
 								if (Config::aiaim) {
 									int x;
 									if (rand() % 10 > 5)
@@ -1550,10 +1500,6 @@ namespace OW {
 									if (Config::minFov2 > 500)Config::minFov1 = 500;
 									if (Config::Fov2 > 500)Config::Fov = 500;
 									if (Config::fov360) Config::fov360 = false;
-								}
-								if (dodelay && !Config::doingdelay) {//超时开枪 dodelay
-									hitbotdelaytime = GetTickCount();
-									dodelay = 0;
 								}
 								if (Target != Vector3(0, 0, 0)) {
 									if (Config::hitboxdelayshoot && hitbotdelaytime != 0) {
@@ -1664,6 +1610,33 @@ namespace OW {
 							}
 						}
 					}
+					if (Config::autoscalefov) {
+						auto vec = GetVector3forfov();
+						if (vec != Vector3(0, 0, 0)) {
+							Vector2 high;
+							Vector2 low;
+							if (viewMatrix.WorldToScreen(entities[Config::Targetenemyifov].head_pos, &high, Vector2(WX, WY)) && viewMatrix.WorldToScreen(entities[Config::Targetenemyifov].chest_pos, &low, Vector2(WX, WY)))
+							{
+								Config::Fov = -(high.Y - low.Y) * 4;
+								if (Config::Fov > 500) Config::Fov = 500;
+								else if (Config::Fov < Config::minFov1) Config::Fov = Config::minFov1;
+								Config::Fov2 = -(high.Y - low.Y) * 4;
+								if (Config::Fov2 > 500) Config::Fov2 = 500;
+								else if (Config::Fov2 < Config::minFov2) Config::Fov2 = Config::minFov2;
+							}
+							else
+							{
+								Config::Fov = Config::minFov1;
+								Config::Fov2 = Config::minFov2;
+							}
+
+						}
+						else
+						{
+							Config::Fov = Config::minFov1;
+							Config::Fov2 = Config::minFov2;
+						}
+					}
 					if (Config::GenjiBlade && GetAsyncKeyState(0x51) && local_entity.HeroID == eHero::HERO_GENJI && local_entity.ultimate == 100) {
 						Config::Qstarttime = GetTickCount();
 						Config::Qtime = Config::Qstarttime;
@@ -1715,7 +1688,6 @@ namespace OW {
 								auto vec_calc_target = Vector3(calc_target.x, calc_target.y, calc_target.z);
 								auto Target = SmoothLinear(local_angle, vec_calc_target, speed / 10.f);
 								auto local_loc = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z);
-
 								if (Target != Vector3(0, 0, 0)) {
 									float dist = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z).DistTo(vec);
 									if ((!local_entity.skillcd1 && dist < 20) || dist < 7)
@@ -1769,42 +1741,13 @@ namespace OW {
 
 						}
 					}
-
-					if (Config::autoscalefov) {
-						auto vec = GetVector3forfov();
-						if (vec != Vector3(0, 0, 0)) {
-							Vector2 high;
-							Vector2 low;
-							if(viewMatrix.WorldToScreen(entities[Config::Targetenemyifov].head_pos, &high, Vector2(WX, WY)) && viewMatrix.WorldToScreen(entities[Config::Targetenemyifov].chest_pos, &low, Vector2(WX, WY)))
-							{
-								Config::Fov = -(high.Y - low.Y) * 4;
-								if (Config::Fov > 500) Config::Fov = 500;
-								else if (Config::Fov < Config::minFov1) Config::Fov = Config::minFov1;
-								Config::Fov2 = -(high.Y - low.Y) * 4;
-								if (Config::Fov2 > 500) Config::Fov2 = 500;
-								else if (Config::Fov2 < Config::minFov2) Config::Fov2 = Config::minFov2;
-							}
-							else
-							{
-								Config::Fov = Config::minFov1;
-								Config::Fov2 = Config::minFov2;
-							}
-
-						}
-						else
-						{
-							Config::Fov = Config::minFov1;
-							Config::Fov2 = Config::minFov2;
-						}
-					}
-
 					if (Config::trackback) {
 						auto vec = GetVector3fortrackback(Config::Prediction ? true : false);
 					}
 					if (Config::AutoMelee) {
 						auto vec = GetVector3(false);
 						//printf("%llx\n",SDK->RPM<uint32_t>(SDK->g_player_controller + 0x1244));
-						if (vec != Vector3(0, 0, 0)&&entities[Config::Targetenemyi].Team) {
+						if (vec != Vector3(0, 0, 0) && entities[Config::Targetenemyi].Team) {
 							float dist = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z).DistTo(vec);
 							if (Config::health <= Config::meleehealth && dist <= Config::meleedistance) {
 								//std::cout << Config::health << " " << dist << std::endl;
@@ -2131,8 +2074,7 @@ namespace OW {
 			}
 		}
 		__except (1) {
-			_endthread();
-			_beginthread((_beginthread_proc_type)aimbot_thread, 0, 0);
+
 		}
 	}
 	inline void configsavenloadthread() {
@@ -2141,7 +2083,7 @@ namespace OW {
 		//timetobegin = GetTickCount();
 		//int timepassed = 0;
 		if (Config::lastheroid == -2) {
-			ImGui::InsertNotification({ ImGuiToastType_Success, 8000, skCrypt(u8"Rigel Internal已加载\n欢迎使用！"), "" });
+			ImGui::InsertNotification({ ImGuiToastType_Success, 8000, skCrypt(u8"Rigel Internal Loaded\nWelcome！"), "" });
 			Config::lastheroid = 0;
 		}
 		while (1) {
@@ -2154,13 +2096,15 @@ namespace OW {
 						_stprintf(bufsave, _T("%d"), Config::highPriority);
 						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("highPriority"), bufsave, _T(".\\config.ini"));
 
-						_stprintf(bufsave, _T("%d"), Config::aiaim);
-						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("aiaim"), bufsave, _T(".\\config.ini"));
 						_stprintf(bufsave, _T("%d"), Config::hanzoautospeed);
 						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("hanzoautospeed"), bufsave, _T(".\\config.ini"));
 						_stprintf(bufsave, _T("%d"), Config::draw_hp_pack);
 						WritePrivateProfileString(_T("Global"), _T("draw_hp_pack"), bufsave, _T(".\\config.ini"));
 
+						_stprintf(bufsave, _T("%d"), Config::aiaim);
+						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("aiaim"), bufsave, _T(".\\config.ini"));
+						_stprintf(bufsave, _T("%d"), Config::autoscalefov);
+						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("autoscalefov"), bufsave, _T(".\\config.ini"));
 
 						_stprintf(bufsave, _T("%d"), Config::crosscircle);
 						WritePrivateProfileString(_T("Global"), _T("crosscircle"), bufsave, _T(".\\config.ini"));
@@ -2168,8 +2112,6 @@ namespace OW {
 						_stprintf(bufsave, _T("%d"), Config::eyeray);
 						WritePrivateProfileString(_T("Global"), _T("eyeray"), bufsave, _T(".\\config.ini"));
 
-						_stprintf(bufsave, _T("%d"), Config::autoscalefov);
-						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("autoscalefov"), bufsave, _T(".\\config.ini"));
 
 						_stprintf(bufsave, _T("%d"), Config::lockontarget);
 						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("lockontarget"), bufsave, _T(".\\config.ini"));
@@ -2313,12 +2255,11 @@ namespace OW {
 						_stprintf(bufsave, _T("%d"), (int)(Config::CHANGEFOV * 10000));
 						WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("CHANGEFOV"), bufsave, _T(".\\config.ini"));
 
-						_stprintf(bufsave, _T("%d"), Config::trackback);
-						WritePrivateProfileString(_T("Global"), _T("trackback"), bufsave, _T(".\\config.ini"));
 
 						_stprintf(bufsave, _T("%d"), (int)(Config::backtracksecond * 10000));
 						WritePrivateProfileString(_T("Global"), _T("backtime"), bufsave, _T(".\\config.ini"));
-
+						_stprintf(bufsave, _T("%d"), Config::trackback);
+						WritePrivateProfileString(_T("Global"), _T("trackback"), bufsave, _T(".\\config.ini"));
 						_stprintf(bufsave, _T("%d"), Config::draw_info);
 						WritePrivateProfileString(_T("Global"), _T("draw_info"), bufsave, _T(".\\config.ini"));
 						_stprintf(bufsave, _T("%d"), Config::drawbattletag);
@@ -2428,8 +2369,8 @@ namespace OW {
 						WritePrivateProfileString(_T("Global"), _T("allyargbw"), bufsave, _T(".\\config.ini"));
 
 
-						std::string saveheroname = GetHeroNames(Config::lastheroid, local_entity.LinkBase).c_str();
-						saveheroname = skCrypt(u8"已保存参数：").decrypt() + saveheroname;
+						std::string saveheroname = GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str();
+						saveheroname = skCrypt(u8"Saved:").decrypt() + saveheroname;
 						ImGui::InsertNotification({ ImGuiToastType_Success, 5000,saveheroname.data() , "" });
 					}
 					Config::Fov = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("FOV"), 200, _T(".\\config.ini"));
@@ -2453,7 +2394,6 @@ namespace OW {
 					Config::hiboxdelaytime = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("hitboxdelaytime"), 200, _T(".\\config.ini"));
 					Config::Bone = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Bone"), 1, _T(".\\config.ini"));
 					Config::autobone = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("autobone"), 0, _T(".\\config.ini"));
-					Config::draw_hp_pack = GetPrivateProfileInt(_T("Global"), _T("draw_hp_pack"), 0, _T(".\\config.ini"));
 
 					Config::Bone2 = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Bone2"), 1, _T(".\\config.ini"));
 					Config::autobone2 = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("autobone2"), 0, _T(".\\config.ini"));
@@ -2465,6 +2405,7 @@ namespace OW {
 					Config::horizonreco = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("horizonreco"), 0, _T(".\\config.ini"));
 					Config::Gravitypredit = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Gravitypredit"), 0, _T(".\\config.ini"));
 					Config::switch_team = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("switch_team"), 0, _T(".\\config.ini"));
+					Config::draw_hp_pack = GetPrivateProfileInt(_T("Global"), _T("draw_hp_pack"), 0, _T(".\\config.ini"));
 
 					Config::switch_team2 = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("switch_team2"), 0, _T(".\\config.ini"));
 					Config::secondaim = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("secondaim"), 0, _T(".\\config.ini"));
@@ -2475,6 +2416,7 @@ namespace OW {
 					Config::predit_level2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("predit_level2"), 1100000, _T(".\\config.ini"))) / 10000.f;
 					Config::Fov2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Fov2"), 2000000, _T(".\\config.ini"))) / 10000.f;
 					Config::minFov2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Fov2"), 2000000, _T(".\\config.ini"))) / 10000.f;
+
 					Config::hitbox2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("hitbox2"), 1300, _T(".\\config.ini"))) / 10000.f;
 					Config::Tracking_smooth2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Tracking_smooth2"), 1000, _T(".\\config.ini"))) / 10000.f;
 					Config::Flick_smooth2 = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Flick_smooth2"), 1000, _T(".\\config.ini"))) / 10000.f;
@@ -2484,13 +2426,13 @@ namespace OW {
 					Config::togglekey = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("togglekey"), 0, _T(".\\config.ini"));
 					Config::Gravitypredit = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("Gravitypredit"), 0, _T(".\\config.ini"));
 
-					Config::enablechangefov= GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("enablechangefov"), 0, _T(".\\config.ini"));
+					Config::enablechangefov = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("enablechangefov"), 0, _T(".\\config.ini"));
 					Config::CHANGEFOV = float(GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("CHANGEFOV"), 1030000, _T(".\\config.ini"))) / 10000.f;
 
-					Config::trackback = GetPrivateProfileInt(_T("Global"), _T("trackback"), 0, _T(".\\config.ini"));
 
 					Config::backtracksecond = float(GetPrivateProfileInt(_T("Global"), _T("backtime"), 2000, _T(".\\config.ini"))) / 10000.f;
 
+					Config::trackback = GetPrivateProfileInt(_T("Global"), _T("trackback"), 0, _T(".\\config.ini"));
 					Config::draw_info = GetPrivateProfileInt(_T("Global"), _T("draw_info"), 0, _T(".\\config.ini"));
 					Config::drawbattletag = GetPrivateProfileInt(_T("Global"), _T("drawbattletag"), 0, _T(".\\config.ini"));
 					Config::drawhealth = GetPrivateProfileInt(_T("Global"), _T("drawhealth"), 0, _T(".\\config.ini"));
@@ -2553,10 +2495,10 @@ namespace OW {
 
 					Config::lockontarget = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("lockontarget"), 1, _T(".\\config.ini"));
 					Config::trackcompensate = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("trackc"), 0, _T(".\\config.ini"));
-					Config::autoscalefov = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("autoscalefov"), 0, _T(".\\config.ini"));
 					Config::eyeray = GetPrivateProfileInt(_T("Global"), _T("eyeray"), 0, _T(".\\config.ini"));
 					Config::crosscircle = GetPrivateProfileInt(_T("Global"), _T("crosscircle"), 0, _T(".\\config.ini"));
 					Config::aiaim = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("aiaim"), 0, _T(".\\config.ini"));
+					Config::autoscalefov = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("autoscalefov"), 0, _T(".\\config.ini"));
 					Config::hanzoautospeed = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("hanzoautospeed"), 0, _T(".\\config.ini"));
 					Config::spinbot = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("spinbot"), 0, _T(".\\config.ini"));
 					Config::highPriority = GetPrivateProfileInt(_T(GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str()), _T("highPriority"), 0, _T(".\\config.ini"));
@@ -2687,9 +2629,9 @@ namespace OW {
 					}*/
 					Config::lastheroid = local_entity.HeroID;
 					Sleep(2);
-					std::string saveheroname = GetHeroNames(local_entity.HeroID, local_entity.LinkBase).c_str();
-					Config::nowhero = skCrypt(u8"当前英雄：").decrypt() + saveheroname;
-					saveheroname = skCrypt(u8"已加载参数：").decrypt() + saveheroname;
+					std::string saveheroname = GetHeroEngNames(local_entity.HeroID, local_entity.LinkBase).c_str();
+					Config::nowhero = skCrypt(u8"Now using:").decrypt() + saveheroname;
+					saveheroname = skCrypt(u8"Loaded:").decrypt() + saveheroname;
 					ImGui::InsertNotification({ ImGuiToastType_Success, 5000,saveheroname.data() , "" });
 				}
 			}
@@ -2698,7 +2640,6 @@ namespace OW {
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("spinbot"), bufsave, _T(".\\config.ini"));
 				_stprintf(bufsave, _T("%d"), Config::highPriority);
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("highPriority"), bufsave, _T(".\\config.ini"));
-
 				_stprintf(bufsave, _T("%d"), Config::hanzoautospeed);
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("hanzoautospeed"), bufsave, _T(".\\config.ini"));
 				_stprintf(bufsave, _T("%d"), Config::draw_hp_pack);
@@ -2706,16 +2647,14 @@ namespace OW {
 
 				_stprintf(bufsave, _T("%d"), Config::aiaim);
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("aiaim"), bufsave, _T(".\\config.ini"));
-
+				_stprintf(bufsave, _T("%d"), Config::autoscalefov);
+				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("autoscalefov"), bufsave, _T(".\\config.ini"));
 
 				_stprintf(bufsave, _T("%d"), Config::crosscircle);
 				WritePrivateProfileString(_T("Global"), _T("crosscircle"), bufsave, _T(".\\config.ini"));
 
 				_stprintf(bufsave, _T("%d"), Config::eyeray);
 				WritePrivateProfileString(_T("Global"), _T("eyeray"), bufsave, _T(".\\config.ini"));
-
-				_stprintf(bufsave, _T("%d"), Config::autoscalefov);
-				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("autoscalefov"), bufsave, _T(".\\config.ini"));
 
 				_stprintf(bufsave, _T("%d"), Config::lockontarget);
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("lockontarget"), bufsave, _T(".\\config.ini"));
@@ -2787,7 +2726,7 @@ namespace OW {
 				_stprintf(bufsave, _T("%d"), Config::hiboxdelaytime);
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("hitboxdelaytime"), bufsave, _T(".\\config.ini"));
 				Config::manualsave = false;
-				if (local_entity.HeroID == eHero::HERO_GENJI) {
+				if (Config::lastheroid == eHero::HERO_GENJI) {
 					_stprintf(bufsave, _T("%d"), Config::GenjiBlade);
 					WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("GenjiBlade"), bufsave, _T(".\\config.ini"));
 					_stprintf(bufsave, _T("%d"), Config::AutoShiftGenji);
@@ -2860,12 +2799,11 @@ namespace OW {
 				_stprintf(bufsave, _T("%d"), (int)(Config::CHANGEFOV * 10000));
 				WritePrivateProfileString(_T(GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str()), _T("CHANGEFOV"), bufsave, _T(".\\config.ini"));
 
-				_stprintf(bufsave, _T("%d"), Config::trackback);
-				WritePrivateProfileString(_T("Global"), _T("trackback"), bufsave, _T(".\\config.ini"));
-
 				_stprintf(bufsave, _T("%d"), (int)(Config::backtracksecond * 10000));
 				WritePrivateProfileString(_T("Global"), _T("backtime"), bufsave, _T(".\\config.ini"));
 
+				_stprintf(bufsave, _T("%d"), Config::trackback);
+				WritePrivateProfileString(_T("Global"), _T("trackback"), bufsave, _T(".\\config.ini"));
 				_stprintf(bufsave, _T("%d"), Config::draw_info);
 				WritePrivateProfileString(_T("Global"), _T("draw_info"), bufsave, _T(".\\config.ini"));
 				_stprintf(bufsave, _T("%d"), Config::drawbattletag);
@@ -2973,8 +2911,8 @@ namespace OW {
 				WritePrivateProfileString(_T("Global"), _T("allyargbz"), bufsave, _T(".\\config.ini"));
 				_stprintf(bufsave, _T("%d"), (int)(Config::allyargb.w * 10000));
 				WritePrivateProfileString(_T("Global"), _T("allyargbw"), bufsave, _T(".\\config.ini"));
-				std::string saveheroname = GetHeroNames(Config::lastheroid, local_entity.LinkBase).c_str();
-				saveheroname = skCrypt(u8"已保存参数：").decrypt() + saveheroname;
+				std::string saveheroname = GetHeroEngNames(Config::lastheroid, local_entity.LinkBase).c_str();
+				saveheroname = skCrypt(u8"Saved:").decrypt() + saveheroname;
 				ImGui::InsertNotification({ ImGuiToastType_Success, 5000,saveheroname.data() , "" });
 			}
 			//Config::lastheroid = local_entity.HeroID;
@@ -2991,9 +2929,9 @@ namespace OW {
 		{
 
 			if (Config::got == 0) {
-				SDK->GlobalKey1 = *(uint64_t*)(e->ContextRecord->Rsp + 0x40);
-				SDK->GlobalKey2 = *(uint64_t*)(e->ContextRecord->Rsp + 0x48);
-				//printf("key1: %llx, key2: %llx\n", SDK->GlobalKey1, SDK->GlobalKey2);
+				SDK->GlobalKey1 = *(uint64_t*)(e->ContextRecord->Rsp + 0x50);
+				SDK->GlobalKey2 = *(uint64_t*)(e->ContextRecord->Rsp + 0x58);
+				//printf("key1: %llx, key2: %llx\n", key1, key2);
 				std::cout << skCrypt("Everything Loaded and Welcome.\n");
 				Config::got = 1;
 			}
@@ -3050,27 +2988,27 @@ namespace OW {
 			//printf("%d\n", trackback);
 			if (Config::silent) {
 				auto vec = GetVector3(Config::Prediction ? true : false);
-				if (GetAsyncKeyState(Config::aim_key) && !Config::shooted && !Config::reloading&& vec != Vector3(0, 0, 0)&&!(entities[Config::Targetenemyi].HeroID==eHero::HERO_GENJI&& entities[Config::Targetenemyi].skill2act) && ((!entities[Config::Targetenemyi].imort && !entities[Config::Targetenemyi].barrprot) || Config::switch_team))
+				if (GetAsyncKeyState(Config::aim_key) && !Config::shooted && !Config::reloading && vec != Vector3(0, 0, 0) && !(entities[Config::Targetenemyi].HeroID == eHero::HERO_GENJI && entities[Config::Targetenemyi].skill2act) && ((!entities[Config::Targetenemyi].imort && !entities[Config::Targetenemyi].barrprot) || Config::switch_team))
 				{
-						auto local_angle = SDK->RPM<Vector3>(SDK->g_player_controller + 0x12A0);
-						auto calc_target = CalcAngle(XMFLOAT3(vec.X, vec.Y, vec.Z), viewMatrix_xor.get_location());
-						auto vec_calc_target = Vector3(calc_target.x, calc_target.y, calc_target.z);
-						auto Target = SmoothAccelerate(local_angle, vec_calc_target, Config::Flick_smooth / 10.f, 75.0f / 100.0f);
-						auto local_loc = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z);
+					auto local_angle = SDK->RPM<Vector3>(SDK->g_player_controller + 0x12A0);
+					auto calc_target = CalcAngle(XMFLOAT3(vec.X, vec.Y, vec.Z), viewMatrix_xor.get_location());
+					auto vec_calc_target = Vector3(calc_target.x, calc_target.y, calc_target.z);
+					auto Target = SmoothAccelerate(local_angle, vec_calc_target, Config::Flick_smooth / 10.f, 75.0f / 100.0f);
+					auto local_loc = Vector3(viewMatrix_xor.get_location().x, viewMatrix_xor.get_location().y, viewMatrix_xor.get_location().z);
 
-						if (Target != Vector3(0, 0, 0)) {
-							Config::pitch = ANGLE2SHORT(RAD2DEG(atan2f((vec.Y - viewMatrix_xor.get_location().y) * -1.0f, sqrtf(((vec.Z - viewMatrix_xor.get_location().z) * (vec.Z - viewMatrix_xor.get_location().z)) + ((vec.X - viewMatrix_xor.get_location().x) * (vec.X - viewMatrix_xor.get_location().x))))));
-							Config::yaw = ANGLE2SHORT(RAD2DEG(atan2f((vec.X - viewMatrix_xor.get_location().x), (vec.Z - viewMatrix_xor.get_location().z))));
-							uint8_t mvoe1 = *(uint8_t*)(e->ContextRecord->R10 + 0x13);
-							uint8_t mvoe2 = *(uint8_t*)(e->ContextRecord->R10 + 0x14);
+					if (Target != Vector3(0, 0, 0)) {
+						Config::pitch = ANGLE2SHORT(RAD2DEG(atan2f((vec.Y - viewMatrix_xor.get_location().y) * -1.0f, sqrtf(((vec.Z - viewMatrix_xor.get_location().z) * (vec.Z - viewMatrix_xor.get_location().z)) + ((vec.X - viewMatrix_xor.get_location().x) * (vec.X - viewMatrix_xor.get_location().x))))));
+						Config::yaw = ANGLE2SHORT(RAD2DEG(atan2f((vec.X - viewMatrix_xor.get_location().x), (vec.Z - viewMatrix_xor.get_location().z))));
+						uint8_t mvoe1 = *(uint8_t*)(e->ContextRecord->R10 + 0x13);
+						uint8_t mvoe2 = *(uint8_t*)(e->ContextRecord->R10 + 0x14);
 
-							*(uint64_t*)(e->ContextRecord->R10 + 0xa) = OW::Config::yaw;//d4a是yaw左右
-							*(uint64_t*)(e->ContextRecord->R10 + 0xc) = OW::Config::pitch;//d4c是pitch上下
-							*(uint8_t*)(e->ContextRecord->R10 + 0x13) = mvoe1;
-							*(uint8_t*)(e->ContextRecord->R10 + 0x14) = mvoe2;
+						*(uint64_t*)(e->ContextRecord->R10 + 0xa) = OW::Config::yaw;//d4a是yaw左右
+						*(uint64_t*)(e->ContextRecord->R10 + 0xc) = OW::Config::pitch;//d4c是pitch上下
+						*(uint8_t*)(e->ContextRecord->R10 + 0x13) = mvoe1;
+						*(uint8_t*)(e->ContextRecord->R10 + 0x14) = mvoe2;
 
-							Config::didsilent = 1;
-						}
+						Config::didsilent = 1;
+					}
 				}
 				else if (GetAsyncKeyState(Config::aim_key) && Config::silenttrace && !(entities[Config::Targetenemyi].HeroID == eHero::HERO_GENJI && entities[Config::Targetenemyi].skill2act) && ((!entities[Config::Targetenemyi].imort && !entities[Config::Targetenemyi].barrprot) || Config::switch_team)) {
 					auto vec = GetVector3(Config::Prediction ? true : false);
@@ -3094,7 +3032,7 @@ namespace OW {
 						}
 					}
 				}
-				else if (OW::Config::Antiaim && !(local_entity.HeroID != eHero::HERO_HANJO&&GetAsyncKeyState(0x1)) && !GetAsyncKeyState(0xA0) && !GetAsyncKeyState(0x45) && !GetAsyncKeyState(0x51)) {
+				else if (OW::Config::Antiaim && !(local_entity.HeroID != eHero::HERO_HANJO && GetAsyncKeyState(0x1)) && !GetAsyncKeyState(0xA0) && !GetAsyncKeyState(0x45) && !GetAsyncKeyState(0x51)) {
 					short tempyaw = *(uint64_t*)(e->ContextRecord->R10 + 0xa);
 					short temppitch = *(uint64_t*)(e->ContextRecord->R10 + 0xc);
 					if (i == 0) {
@@ -3386,17 +3324,10 @@ namespace OW {
 			else if (!Config::silent && !Config::outline && dohook && Config::got == 1&&!Config::trackback) {
 				dohook = 0;
 				SuspendThread(hMainThread);
-				/*c.Dr0 = OW::SDK->dwGameBase + OW::offset::GetKeyAdd;
+				c.Dr0 = OW::SDK->dwGameBase + OW::offset::GetKeyAdd;
 				c.Dr1 = OW::SDK->dwGameBase + OW::offset::GlowESP;
 				c.Dr2 = OW::SDK->dwGameBase + OW::offset::Silent;
-				c.Dr7 = 000000;*/
-				c.Dr0 = 0; // Clear the value to disable DR0 breakpoint.
-				c.Dr1 = 0; // Clear the value to disable DR1 breakpoint.
-				c.Dr2 = 0; // Clear the value to disable DR2 breakpoint.
-				c.Dr3 = 0; // Clear the value to disable DR3 breakpoint.
-
-				// Clear the bits that enable the breakpoints in DR7.
-				c.Dr7 &= ~((1 << 0) | (1 << 2) | (1 << 4) | (1 << 6));
+				c.Dr7 = 000000;
 				SetThreadContext(hMainThread, &c);
 				ResumeThread(hMainThread);
 			}
